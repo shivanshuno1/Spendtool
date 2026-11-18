@@ -1,31 +1,47 @@
-"""OPTIONAL LLM labelling of the highest-spend unique items. Needs ANTHROPIC_API_KEY; without it the tool
-silently uses the local classifier. (Written against the public Messages API; not exercised without a key.)"""
+"""Optional Gemini labelling of the highest-spend unique items."""
 import hashlib, json, os, re, time
+import urllib.error
+import urllib.parse
 import urllib.request
 
-API = "https://api.anthropic.com/v1/messages"
+API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 def available(cfg):
-    return bool(cfg["classify"]["llm"].get("enabled")) and bool(os.environ.get("ANTHROPIC_API_KEY"))
+    return bool(cfg["classify"]["llm"].get("enabled")) and bool(os.environ.get("GEMINI_API_KEY"))
 
 def _call(model, system, user, key, max_tokens=4096):
-    body = json.dumps({"model": model, "max_tokens": max_tokens, "system": system,
-                       "messages": [{"role": "user", "content": user}]}).encode()
-    req = urllib.request.Request(API, data=body, headers={
-        "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01"})
+    body = json.dumps({
+        "systemInstruction": {"parts": [{"text": system}]},
+        "contents": [{"role": "user", "parts": [{"text": user}]}],
+        "generationConfig": {"maxOutputTokens": max_tokens, "responseMimeType": "application/json"},
+    }).encode()
+    url = API.format(model=urllib.parse.quote(model, safe=""))
+    req = urllib.request.Request(url, data=body, headers={
+        "content-type": "application/json", "x-goog-api-key": key})
     for attempt in range(4):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 out = json.loads(r.read())
-            return "".join(b.get("text", "") for b in out["content"]), out.get("usage", {})
-        except Exception:
-            time.sleep(2 ** attempt)
-    return None, {}
+            candidates = out.get("candidates", [])
+            parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
+            usage = out.get("usageMetadata", {})
+            return "".join(part.get("text", "") for part in parts), {
+                "input_tokens": usage.get("promptTokenCount", 0),
+                "output_tokens": usage.get("candidatesTokenCount", 0),
+            }
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            if exc.code not in (408, 429, 500, 502, 503, 504) or attempt == 3:
+                raise RuntimeError(f"Gemini API request failed ({exc.code}): {detail}") from exc
+        except urllib.error.URLError as exc:
+            if attempt == 3:
+                raise RuntimeError(f"Gemini API request failed: {exc.reason}") from exc
+        time.sleep(2 ** attempt)
 
 def label_items(items, tree, cfg, cache_path):
     """items: list of dicts {text, supplier, ctx}. Returns {index: (leaf_idx, conf)} and usage totals."""
     lc = cfg["classify"]["llm"]
-    key = os.environ["ANTHROPIC_API_KEY"]
+    key = os.environ["GEMINI_API_KEY"]
     cats = "\n".join(f"{i}: " + " > ".join(p) for i, p in enumerate(tree.paths))
     system = ("You classify procurement purchase lines into a company's category tree. "
               "Choose the single best leaf category number for every line using only the numbered list. "

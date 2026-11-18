@@ -16,7 +16,7 @@ names (typos, rapidfuzz >= 92). Matched tool records inherit their ERP partner's
 code-less lines use the normalised description, fuzzy-merged only if their numbers are identical.
 
 **Unseen tree, zero labels.** (1) TF-IDF (words + char n-grams) similarity between line text and category paths; (2) optional
-sentence-embeddings and (3) optional LLM labels for the highest-spend unique items (env `ANTHROPIC_API_KEY`, else skipped);
+sentence-embeddings and (3) optional Gemini labels for the highest-spend unique items (env `GEMINI_API_KEY`, else skipped);
 (4) self-training: confident lines become pseudo-labels for a text + supplier + spend-type model that re-predicts all lines.
 With a labels file the supervised model replaces step 4. Confidence is capped at 0.6 for label-free predictions.
 

@@ -1,4 +1,4 @@
-"""ONE COMMAND:  python -m src.run --config configs/A.yaml --out outputs/yourname__A.csv"""
+"""ONE COMMAND:  python -m src.run --config configs/A.yaml --out outputs/Shivanshu_A.csv"""
 import argparse, os, sys, time
 import numpy as np
 import pandas as pd
@@ -62,7 +62,7 @@ def main():
     ap.add_argument("--no-labels", action="store_true", help="ignore labels file (zero-label mode)")
     ap.add_argument("--holdout", type=float, default=0.0, help="hide this share of labels (evaluation)")
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--llm", action="store_true", help="enable LLM labelling (needs ANTHROPIC_API_KEY)")
+    ap.add_argument("--llm", action="store_true", help="enable Gemini labelling (needs GEMINI_API_KEY)")
     a = ap.parse_args()
     run(a.config, a.out, not a.no_labels, a.holdout, a.seed, True if a.llm else None)
 

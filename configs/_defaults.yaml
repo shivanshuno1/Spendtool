@@ -29,7 +29,7 @@ classify:
   embedding_model: "all-MiniLM-L6-v2"
   llm:
     enabled: false
-    model: "claude-haiku-5-5"
+    model: "gemini-2.5-flash"
     batch_size: 40
     max_items: 5000
     conf_threshold: 0.5

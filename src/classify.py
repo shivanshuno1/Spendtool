@@ -3,7 +3,7 @@
 Layers (each optional, all driven by the tree file read at run time):
   1. zero-shot: TF-IDF (words + char n-grams) similarity between line text and category paths
      (+ sentence-embedding similarity if `classify.use_embeddings` and the package/model is available)
-  2. LLM labels for the highest-spend unique items (only if enabled AND ANTHROPIC_API_KEY is set)
+  2. Gemini labels for the highest-spend unique items (only if enabled AND GEMINI_API_KEY is set)
   3. self-training: pseudo-label the confident lines, learn text + supplier + spend-type -> category,
      re-predict everything (spreads the signal to lines whose own text says nothing)
   4. supervised model on the client's labelled lines, when a labels file is configured and present
@@ -104,7 +104,7 @@ def classify(df, tree, cfg, guide=None, log=print):
             method[g] = "llm"
         log(f"  LLM: labelled {len(res)}/{len(items)} items, tokens in={usage['input_tokens']} out={usage['output_tokens']}")
     elif cc["llm"].get("enabled"):
-        log("  LLM enabled in config but ANTHROPIC_API_KEY not set -> local classifier only")
+        log("  LLM enabled in config but GEMINI_API_KEY not set -> local classifier only")
 
     # ---- self-training ----
     oh_s = OneHotEncoder(handle_unknown="ignore").fit_transform(rep[["s"]])

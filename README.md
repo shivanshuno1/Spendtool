@@ -22,7 +22,7 @@ Also writes `outputs/yourname__A_audit.csv` (match rule, FX, flags, classifier u
 |---|---|
 | `--no-labels` | ignore the labels file: classify from the tree alone (zero-label mode) |
 | `--holdout 0.2` | hide 20% of labels, then `python eval/eval_A.py --out ... --labels data/A/labels_A.csv --hidden-ids ..._hidden_ids.txt` |
-| `--llm` | enable LLM labelling of high-spend items (needs `ANTHROPIC_API_KEY`; otherwise ignored) |
+| `--llm` | enable Gemini labelling of high-spend items (needs `GEMINI_API_KEY`; otherwise local classification is used) |
 
 ## New company = new config
 Copy `configs/_template.yaml`, fill the column names, run the same command. No code changes.
