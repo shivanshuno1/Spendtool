@@ -1,34 +1,50 @@
-# DRAFT - written WITHOUT the B files (they were not available when this was built).
-# Fill the column names from the header of invoice_lines.csv, then run the smoke test:
-#   python -m src.run --config configs/B.yaml --out outputs/yourname__B.csv
+
 company: B
 reporting_currency: USD
+
 tree_file: data/B/taxonomy_B.csv
+
 fx:
-  file: data/B/fx_rates_usd.csv        # TODO check layout: wide (month + currency columns) or long
-  month_col: month                     # TODO header of the month column
-  # currency_col: currency             # TODO uncomment + set both if the file is long format
-  # rate_col: rate
+  file: data/B/fx_rates_usd.csv
+  month_col: month
+  currency_col: currency
+  rate_col: units_per_usd
+
 labels:
-  file: data/B/seed_labels.csv         # TODO check column names; imperfect analyst labels, used as a guide
+  file: data/B/seed_labels.csv
   id_col: line_id
   level_cols: [category_l1, category_l2, category_l3]
+
 sources:
   - name: ap
     file: data/B/invoice_lines.csv
-    id_col: line_id                    # TODO
-    amount_is_gross: false             # TODO confirm: are B's amounts net of tax?
-    columns:                           # TODO all values below are guesses
-      amount: amount
-      date: invoice_date
+    id_col: line_id
+
+    # Assumption: line_amount is treated as net.
+    # Confirm/document this if the task brief does not specify it.
+    amount_is_gross: false
+
+    columns:
+      amount: line_amount
+      date: posting_date
       vendor_id: vendor_id
+      item_code: material_number
       currency: currency
       rate: currency_rate
-      status: status
-    vendor_scope: [erp]                # TODO column that identifies the ERP/region (vendor ids can repeat)
-    desc_cols: [description]
-    context_cols: [gl_account]         # TODO account code/name column(s)
-    date_formats: ["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%d.%m.%Y"]
-    status:
-      approved: [Approved, Paid]
-      cancelled: [Cancelled]
+
+    vendor_scope: [source_system, region]
+
+    desc_cols:
+      - line_description
+
+    context_cols:
+      - gl_account
+      - gl_account_description
+      - supplier_type
+      - document_type
+
+    date_formats:
+      - "%Y-%m-%d"
+      - "%d/%m/%Y"
+      - "%m/%d/%Y"
+      - "%d.%m.%Y"

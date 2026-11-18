@@ -11,6 +11,7 @@ def build_output(df, cls, tree):
     inc = df["exclusion_reason"] == ""
     out["include"] = inc.astype(int)
     out["exclusion_reason"] = df["exclusion_reason"]
+
     out["supplier_key"] = df["supplier_key"]
     out["item_key"] = df["item_key"]
     out["spend"] = np.where(inc, df["spend_raw"].fillna(0.0), 0.0).round(2)
@@ -25,8 +26,12 @@ def build_output(df, cls, tree):
     out.loc[idx, "confidence"] = cls["confidence"].astype(float).values
     ex = ~inc
     conf = df.loc[ex, "exclusion_reason"].map(_EXCL_CONF)
-    conf = conf.fillna(df.loc[ex, "match_rule"].map(_RULE_CONF)).fillna(0.8)
-    out.loc[ex, "confidence"] = conf.values
+    conf = conf.fillna(df.loc[ex, "match_rule"].map(_RULE_CONF))
+
+    # Ensure every confidence value is numeric
+    conf = pd.to_numeric(conf, errors="coerce").fillna(0.8)
+
+    out.loc[ex, "confidence"] = conf.astype(float).values
     return out[COLS + [c for c in out.columns if c not in COLS]]
 
 def build_audit(df, cls):

@@ -48,7 +48,7 @@ def run(config, out, use_labels=True, holdout=0.0, seed=0, llm=None, log=print):
     cls = classify(df, tree, cfg, guide, log=log);     step("classified")
     res = build_output(df, cls, tree)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-    res.iloc[:, :11].to_csv(out, index=False)
+    res.to_csv(out, index=False)
     build_audit(df, cls).to_csv(out.replace(".csv", "_audit.csv"), index=False)
     inc = res[res.include == 1]
     step(f"wrote {out}: {len(res)} rows, {len(inc)} included, total spend {inc.spend.sum():,.2f} {cfg['reporting_currency']}")
