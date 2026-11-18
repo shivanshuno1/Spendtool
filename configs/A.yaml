@@ -1,0 +1,41 @@
+company: A
+reporting_currency: ZAR
+tree_file: data/A/taxonomy_A.csv
+# Optional labels: ONLY used to train/guide the classifier when the file exists.
+# Run with --no-labels to measure the zero-label (tree only) performance.
+labels:
+  file: data/A/labels_A.csv
+  id_col: record_id
+  level_cols: [category_l1, category_l2, category_l3]
+  supplier_col: supplier_key
+  item_col: item_key
+sources:
+  - name: erp
+    file: data/A/erp_goods_receipts.csv
+    id_col: line_id
+    id_prefix: "ERP:"
+    amount_is_gross: false
+    amount_in_reporting: true          # value_zar is already net ZAR
+    columns: {amount: value_zar, date: posting_date, supplier: supplier_name, vendor_id: vendor_id,
+              item_code: material_number, po: po_number, qty: quantity}
+    desc_cols: [material_short_text, service_short_text]
+    context_cols: [spend_type, material_type]
+    date_formats: ["%Y-%m-%d"]
+  - name: tool
+    file: data/A/invoice_tool_export.csv
+    id_col: tool_record_id
+    id_prefix: "TOOL:"
+    amount_is_gross: true              # gross -> remove VAT (rate shown, blank -> 15%)
+    columns: {amount: gross_amount, date: invoice_date, supplier: supplier_name_as_captured,
+              po: po_reference, invoice_no: invoice_number, qty: quantity, vat: vat_rate,
+              currency: currency, status: status}
+    desc_cols: [line_text]
+    date_formats: ["%Y-%m-%d", "%d/%m/%Y", "%d-%b-%y", "%d-%b-%Y"]
+    status:
+      approved: [Approved, Paid]
+      cancelled: [Cancelled]
+match:
+  enabled: true
+  primary: erp
+  secondary: tool
+  po_regex: "(\\d{10})"

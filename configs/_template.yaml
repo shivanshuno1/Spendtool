@@ -1,0 +1,34 @@
+# Copy this file for a NEW company (e.g. C) and fill in the column names. No code changes needed.
+company: C
+reporting_currency: USD
+tree_file: data/C/taxonomy_C.csv       # level columns are auto-detected (l1/l2/category_l3/level_4 ...),
+                                       # or list them: tree_levels: [col1, col2, col3, col4]
+# fx:                                  # only if amounts are in several currencies and no row-level rate
+#   file: data/C/fx_rates_usd.csv      # wide (month + one column per currency) or long (+ currency_col, rate_col)
+#   month_col: month
+sources:
+  - name: ap
+    file: data/C/invoice_lines.csv
+    id_col: line_id
+    amount_is_gross: false             # true -> VAT removed (vat column, else default 15%)
+    columns:                           # canonical field: your column name (omit what does not exist)
+      amount: amount
+      date: invoice_date
+      supplier: supplier_name          # or only vendor_id
+      vendor_id: vendor_id
+      item_code: item_code
+      currency: currency
+      rate: currency_rate              # units of line currency per 1 USD, if present
+      status: status
+      # vat: vat_rate   po: po_number   invoice_no: invoice_number   qty: quantity
+    vendor_scope: []                   # e.g. [erp_system] when vendor ids repeat across ERPs
+    desc_cols: [description]           # joined; first choice for classification
+    context_cols: [gl_account_name]    # extra text: used for exclusion rules + as fallback text
+    date_formats: ["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"]   # tried in order, then a lenient parser
+    status:
+      approved: [Approved, Paid]       # delete this block if there is no status column
+      cancelled: [Cancelled]
+# Company-specific non-procurement rules (generic ones live in _defaults.yaml):
+# nonproc_rules:
+#   - {name: intercompany_account, field: ctx, regex: "(?i)intercompany|ic payable"}
+# match: {enabled: false}              # enable (see A.yaml) only when two systems must be reconciled

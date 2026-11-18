@@ -1,0 +1,10 @@
+data/
+*.csv
+!outputs/*__*.csv
+!submission/*.csv
+outputs/*_audit.csv
+outputs/*_hidden_ids.txt
+outputs/.llm_cache.json
+__pycache__/
+.venv/
+.env

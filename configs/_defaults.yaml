@@ -1,0 +1,35 @@
+# Generic defaults merged UNDER every company config. Company configs override any key.
+vat_default: 0.15
+date_range: [2000, 2035]
+dayfirst: true
+missing_status: approved          # status column blank -> treat as approved
+cancelled_regex: "cancel|void|revers|delete"
+legal_suffixes: [pty, ltd, limited, cc, inc, llc, gmbh, bv, sa, co, corp, corporation, company,
+                 plc, ag, sarl, sas, srl, spa, nv, ltda, sdn, bhd, pvt, llp, lp, kg, ab, oy, as, sl, se]
+item_stopwords: [the, of, and, for, with, a, to, in, on, no, nr, pcs, each, ea]
+# Words that mark real money that is NOT spend with a third-party supplier.
+# Matched (case-insensitive) against supplier, description and context columns.
+nonproc_patterns:
+  tax: ["\\b(vat|gst|sales tax|withholding tax|income tax|payroll tax|tax authority|revenue service|customs duty)\\b"]
+  intercompany: ["inter-?company", "intra-?group", "\\bic (charge|recharge|invoice)\\b", "group recharge", "affiliate recharge"]
+  revenue: ["\\bcustomer (refund|credit)\\b", "\\bsales invoice\\b", "\\brevenue\\b"]
+  royalty: ["\\broyalt(y|ies)\\b", "licen[cs]e fee"]
+  financing: ["\\b(interest (charge|expense|payment)|bank charges?|loan repayment|finance charge|lease interest)\\b"]
+  partner: ["partner billing", "joint venture (billing|recharge)", "\\bjv (billing|recharge)\\b"]
+match:
+  enabled: false
+  amount_tol_rel: 0.02
+  amount_tol_abs: 0.05
+  nopo_tol_rel: 0.002
+  desc_min_sim: 0.6
+classify:
+  use_supplier_prior: true
+  self_train: true
+  use_embeddings: false
+  embedding_model: "all-MiniLM-L6-v2"
+  llm:
+    enabled: false
+    model: "claude-haiku-5-5"
+    batch_size: 40
+    max_items: 5000
+    conf_threshold: 0.5
