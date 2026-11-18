@@ -1,5 +1,7 @@
 # spendtool
 
+An automated procurement spend analytics platform that integrates, cleans, deduplicates and classifies enterprise purchase data to provide structured spending insights and reporting.
+
 Raw purchase data + category tree -> one clean spend row per record: counted once, net of tax, in the
 reporting currency, with `supplier_key`, `item_key`, an exclusion reason and a category (l1..l4) with confidence.
 
