@@ -1,0 +1,41 @@
+company: C
+reporting_currency: USD
+
+tree_file: data/C/category_tree_C.csv
+
+sources:
+  - name: ap
+    file: data/C/invoice_lines.csv
+    id_col: line_id
+    amount_is_gross: false
+    amount_in_reporting: true
+
+    columns:
+      amount: line_amount_usd
+      date: invoice_date
+      supplier: supplier_name
+      invoice_no: invoice_number
+      item_code: product_service_code
+      qty: quantity
+      status: status
+
+    desc_cols:
+      - line_description
+      - product_service_description
+      - invoice_description
+
+    context_cols:
+      - product_service_code
+      - gl_account_description
+      - submission_type
+      - buyer_entity
+
+    date_formats:
+      - "%m/%d/%Y"
+      - "%Y-%m-%d"
+
+    status:
+      approved:
+        - Approved
+      cancelled:
+        - Cancelled
