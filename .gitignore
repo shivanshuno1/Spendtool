@@ -8,3 +8,7 @@ outputs/.llm_cache.json
 __pycache__/
 .venv/
 .env
+
+outputs/
+
+outputs/
